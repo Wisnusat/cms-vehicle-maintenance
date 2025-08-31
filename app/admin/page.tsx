@@ -1,11 +1,9 @@
-"use client"
-
 import { AuthGuard } from "@/components/auth-guard"
 import { Header } from "@/components/header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Truck, Car, Route, Clock, Hash, CreditCard, MapPin, Package, Database, IdCard } from "lucide-react"
+import { Truck, Car, Route, Clock, Hash, CreditCard, MapPin, Package, Database, IdCard, Users } from "lucide-react"
 
 const dataTypes = [
   {
@@ -80,6 +78,16 @@ const dataTypes = [
   },
 ]
 
+const adminSections = [
+  {
+    name: "Users",
+    description: "Manage user data with full name and NIK",
+    icon: Users,
+    href: "/admin/users",
+    color: "bg-gray-700",
+  },
+]
+
 export default function AdminDashboard() {
   return (
     <AuthGuard>
@@ -92,33 +100,68 @@ export default function AdminDashboard() {
               <p className="text-gray-600">Manage your content data efficiently</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {dataTypes.map((dataType) => {
-                const IconComponent = dataType.icon
-                return (
-                  <Card key={dataType.name} className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center space-x-3">
-                        <div className={`p-2 rounded-lg ${dataType.color}`}>
-                          <IconComponent className="h-5 w-5 text-white" />
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">System Administration</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {adminSections.map((section) => {
+                  const IconComponent = section.icon
+                  return (
+                    <Card key={section.name} className="hover:shadow-lg transition-shadow border-2 border-gray-200">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center space-x-3">
+                          <div className={`p-2 rounded-lg ${section.color}`}>
+                            <IconComponent className="h-5 w-5 text-white" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg">{section.name}</CardTitle>
+                          </div>
                         </div>
-                        <div>
-                          <CardTitle className="text-lg">{dataType.name}</CardTitle>
+                        <CardDescription>{section.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Link href={section.href}>
+                          <Button className="w-full bg-transparent" variant="outline">
+                            <Users className="h-4 w-4 mr-2" />
+                            Manage Users
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Data Management</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {dataTypes.map((dataType) => {
+                  const IconComponent = dataType.icon
+                  return (
+                    <Card key={dataType.name} className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center space-x-3">
+                          <div className={`p-2 rounded-lg ${dataType.color}`}>
+                            <IconComponent className="h-5 w-5 text-white" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg">{dataType.name}</CardTitle>
+                          </div>
                         </div>
-                      </div>
-                      <CardDescription>{dataType.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Link href={dataType.href}>
-                        <Button className="w-full">
-                          <Database className="h-4 w-4 mr-2" />
-                          Manage Data
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                )
-              })}
+                        <CardDescription>{dataType.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Link href={dataType.href}>
+                          <Button className="w-full">
+                            <Database className="h-4 w-4 mr-2" />
+                            Manage Data
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
             </div>
 
             <div className="mt-12">
@@ -128,7 +171,7 @@ export default function AdminDashboard() {
                   <CardDescription>Quick stats about your data management system</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-blue-600">{dataTypes.length}</div>
                       <div className="text-sm text-gray-600">Data Categories</div>
@@ -136,6 +179,10 @@ export default function AdminDashboard() {
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">Active</div>
                       <div className="text-sm text-gray-600">System Status</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">Protected</div>
+                      <div className="text-sm text-gray-600">Security Level</div>
                     </div>
                   </div>
                 </CardContent>

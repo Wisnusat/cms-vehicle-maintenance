@@ -22,13 +22,25 @@ interface DataTableProps {
   title: string
   data: DataItem[]
   loading: boolean
-  onAdd: (label: string) => Promise<void>
-  onEdit: (id: string, label: string) => Promise<void>
+  error?: string | null
+  onAdd: (label: string, password?: string) => Promise<void>
+  onEdit: (id: string, label: string, password?: string) => Promise<void>
   onDelete: (id: string) => Promise<void>
   onRefresh: () => void
+  showPasswordField?: boolean
 }
 
-export function DataTable({ title, data, loading, onAdd, onEdit, onDelete, onRefresh }: DataTableProps) {
+export function DataTable({
+  title,
+  data,
+  loading,
+  error,
+  onAdd,
+  onEdit,
+  onDelete,
+  onRefresh,
+  showPasswordField = false,
+}: DataTableProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [editingItem, setEditingItem] = useState<DataItem | null>(null)
   const [deletingItem, setDeletingItem] = useState<DataItem | null>(null)
@@ -40,15 +52,15 @@ export function DataTable({ title, data, loading, onAdd, onEdit, onDelete, onRef
       item.value.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const handleAdd = async (label: string) => {
-    await onAdd(label)
+  const handleAdd = async (label: string, password?: string) => {
+    await onAdd(label, password)
     setShowAddDialog(false)
     onRefresh()
   }
 
-  const handleEdit = async (label: string) => {
+  const handleEdit = async (label: string, password?: string) => {
     if (editingItem) {
-      await onEdit(editingItem.id, label)
+      await onEdit(editingItem.id, label, password)
       setEditingItem(null)
       onRefresh()
     }
@@ -60,6 +72,25 @@ export function DataTable({ title, data, loading, onAdd, onEdit, onDelete, onRef
       setDeletingItem(null)
       onRefresh()
     }
+  }
+
+  const isUserManagement = title === "Users"
+  const addTitle = isUserManagement ? "Add New User" : showPasswordField ? "Add New Admin User" : "Add New Item"
+  const editTitle = isUserManagement ? "Edit User" : showPasswordField ? "Edit Admin User" : "Edit Item"
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-red-600">
+            <p>Error: {error}</p>
+            <Button onClick={onRefresh} className="mt-2">
+              Try Again
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -100,8 +131,8 @@ export function DataTable({ title, data, loading, onAdd, onEdit, onDelete, onRef
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Label</TableHead>
-                    <TableHead>Value</TableHead>
+                    <TableHead>{isUserManagement ? "Full Name" : "Label"}</TableHead>
+                    <TableHead>{isUserManagement ? "NIK" : "Value"}</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -143,16 +174,18 @@ export function DataTable({ title, data, loading, onAdd, onEdit, onDelete, onRef
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onSubmit={handleAdd}
-        title="Add New Item"
+        title={addTitle}
         initialValue=""
+        showPasswordField={showPasswordField}
       />
 
       <AddEditDialog
         open={!!editingItem}
         onOpenChange={(open) => !open && setEditingItem(null)}
         onSubmit={handleEdit}
-        title="Edit Item"
+        title={editTitle}
         initialValue={editingItem?.label || ""}
+        showPasswordField={showPasswordField}
       />
 
       <DeleteDialog
